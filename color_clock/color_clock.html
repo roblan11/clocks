@@ -1,0 +1,119 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>color clock concept</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="./color_clock.css">
+    <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
+</head>
+
+<body>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    
+    <div id="bg"></div>
+    
+    <div id="container">
+        <div id="clock">
+            <div id="h">12</div>
+            :
+            <div id="m">00</div>
+            :
+            <div id="s">00</div>
+        </div>
+        
+        <div id="date">
+            <div id="W">12</div>
+            <div class="invis">_</div>
+            <div id="D">00</div>
+            <div class="invis">_</div>
+            <div id="M">00</div>
+            <div class="invis">_</div>
+            <div id="Y" >00</div>
+        </div>
+    </div>
+    <div id="gradient"></div>
+    
+    <script>
+        
+        function hslToHex(h, s, l) {
+            let r, g, b
+            if (s === 0) {
+                r = g = b = l // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1
+                    if (t > 1) t -= 1
+                    if (t < 1 / 6) return p + (q - p) * 6 * t
+                    if (t < 1 / 2) return q
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+                    return p
+                }
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+                const p = 2 * l - q
+                r = hue2rgb(p, q, h + 1 / 3)
+                g = hue2rgb(p, q, h)
+                b = hue2rgb(p, q, h - 1 / 3)
+            }
+            const toHex = x => {
+                const hex = Math.round(x * 255).toString(16);
+                return hex.length === 1 ? '0' + hex : hex
+            }
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+        }
+        
+        function update() {
+            let d = new Date()
+            
+            utime(d)
+            udate(d)
+            
+            setTimeout(update, 1000)
+        }
+        
+        function utime(d) {
+            h = d.getHours()
+            m = d.getMinutes()
+            s = d.getSeconds()
+            
+            ucol(h, m, s)
+            
+            document.getElementById("h").innerHTML = h / 10 < 1 ? "0"+h : h
+            document.getElementById("m").innerHTML = m / 10 < 1 ? "0"+m : m
+            document.getElementById("s").innerHTML = s / 10 < 1 ? "0"+s : s
+        }
+        
+        function ucol(h, m, s) {
+//          24h loop         
+//            let localvar = h*3600 + m*60 + s
+//            localvar /= 24*3600
+
+//          1h loop
+            let localvar = m*60 + s
+            localvar /= 3600
+            
+//          1m loop
+//            let localvar = s
+//            localvar /= 60
+            
+            document.getElementById("bg").style.backgroundColor = hslToHex(localvar, 1, 0.2)
+            
+        }
+        
+        function udate(d) {
+            const wdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+            
+            D = d.getDate()
+            
+            document.getElementById("W").innerHTML = wdays[d.getDay()-1]
+            document.getElementById("D").innerHTML = D / 10 < 1 ? "0"+D : D
+            document.getElementById("M").innerHTML = months[d.getMonth()]
+            document.getElementById("Y").innerHTML = d.getFullYear()
+        }
+        
+        update()
+    </script>
+    
+</body>
+</html>
