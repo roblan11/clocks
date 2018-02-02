@@ -15,7 +15,7 @@
     
     <div id="container">
         <div id="clock">
-            <div id="h">12</div>
+            <div id="h">00</div>
             :
             <div id="m">00</div>
             :
@@ -23,13 +23,13 @@
         </div>
         
         <div id="date">
-            <div id="W">12</div>
+            <div id="W">MON</div>
             <div class="invis">_</div>
             <div id="D">00</div>
             <div class="invis">_</div>
-            <div id="M">00</div>
+            <div id="M">JAN</div>
             <div class="invis">_</div>
-            <div id="Y" >00</div>
+            <div id="Y" >0000</div>
         </div>
     </div>
     <div id="gradient"></div>
@@ -62,25 +62,47 @@
             return `#${toHex(r)}${toHex(g)}${toHex(b)}`
         }
         
+        function start() {
+            let d = new Date()
+            
+            utime(d, true)
+            
+            update()
+        }
+        
         function update() {
             let d = new Date()
             
-            utime(d)
-            udate(d)
+            utime(d, false)
             
             setTimeout(update, 1000)
         }
         
-        function utime(d) {
-            h = d.getHours()
-            m = d.getMinutes()
+        function utime(d, init) {
+            
+            if (init) udate(d, true)
+            
             s = d.getSeconds()
+            document.getElementById("s").innerHTML = s / 10 < 1 ? "0"+s : s
+            
+            if (s == 0 || init) {
+                m = d.getMinutes()
+                document.getElementById("m").innerHTML = m / 10 < 1 ? "0"+m : m
+                
+                if (m == 0 || init) {
+                    h = d.getHours()
+                    document.getElementById("h").innerHTML = h / 10 < 1 ? "0"+h : h
+                    
+                    if (h == 0) udate(d, false)
+                }
+            }
             
             ucol(h, m, s)
             
-            document.getElementById("h").innerHTML = h / 10 < 1 ? "0"+h : h
-            document.getElementById("m").innerHTML = m / 10 < 1 ? "0"+m : m
-            document.getElementById("s").innerHTML = s / 10 < 1 ? "0"+s : s
+        }
+        
+        function scalarToRad(a) {
+            return a * Math.PI * 2
         }
         
         function ucol(h, m, s) {
@@ -89,30 +111,48 @@
 //            localvar /= 24*3600
 
 //          1h loop
-            let localvar = m*60 + s
-            localvar /= 3600
+            let hue = m*60 + s
+            hue /= 3600
             
 //          1m loop
 //            let localvar = s
 //            localvar /= 60
             
-            document.getElementById("bg").style.backgroundColor = hslToHex(localvar, 1, 0.2)
+//          day / night
+            const deviation = 0.1
+            const base = 0.2
+            let tmp_time = (h*3600 + m*60 + s) / (24*3600)
+            let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
+            let lightness = base - deviation + tmp_light * deviation
+            
+//          static
+//            let lightness = 0.2
+            
+            document.getElementById("bg").style.backgroundColor = hslToHex(hue, 1, lightness)
             
         }
         
-        function udate(d) {
-            const wdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
-            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+        const wdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+        
+        function udate(d, init) {
             
             D = d.getDate()
             
             document.getElementById("W").innerHTML = wdays[d.getDay()-1]
             document.getElementById("D").innerHTML = D / 10 < 1 ? "0"+D : D
-            document.getElementById("M").innerHTML = months[d.getMonth()]
-            document.getElementById("Y").innerHTML = d.getFullYear()
+            
+            if (D == 0 || init) {
+                let M = d.getMonth()
+                document.getElementById("M").innerHTML = months[M]
+                
+                if (m == 0 || init) {
+                    document.getElementById("Y").innerHTML = d.getFullYear()
+                }
+            }
         }
         
-        update()
+        start()
     </script>
     
 </body>
