@@ -163,14 +163,14 @@
             
         }
         
-        const wdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+        const wdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
         const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
         
         function udate(d, init) {
             
             D = d.getDate()
             
-            document.getElementById("W").innerHTML = wdays[d.getDay()-1]
+            document.getElementById("W").innerHTML = wdays[d.getDay()]
             document.getElementById("D").innerHTML = D / 10 < 1 ? "0"+D : D
             
             if (D == 0 || init) {
