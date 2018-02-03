@@ -32,6 +32,7 @@
             <div id="Y" >0000</div>
         </div>
     </div>
+    
     <div id="gradient"></div>
     
     <script>
@@ -106,29 +107,59 @@
         }
         
         function ucol(h, m, s) {
-//          24h loop         
-//            let localvar = h*3600 + m*60 + s
-//            localvar /= 24*3600
-
-//          1h loop
-            let hue = m*60 + s
-            hue /= 3600
             
-//          1m loop
-//            let localvar = s
-//            localvar /= 60
+// --------------------------------- COLOR ---------------------------------
             
-//          day / night
-            const deviation = 0.1
-            const base = 0.2
-            let tmp_time = (h*3600 + m*60 + s) / (24*3600)
-            let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
-            let lightness = base - deviation + tmp_light * deviation
+            const HUELOOP = 'h'
             
-//          static
-//            let lightness = 0.2
+            let hue
+            
+            if (HUELOOP == 'd') {
+                // 24h loop
+                hue = h*3600 + m*60 + s
+                hue /= 24*3600
+            } else if (HUELOOP == 'h') {
+                // 1h loop
+                hue = m*60 + s
+                hue /= 3600
+            } else if (HUELOOP == 'm') {
+                // 1m loop
+                hue = s
+                hue /= 60
+            } else hue = 0
+            
+// ------------------------------- BRIGHTNESS ------------------------------
+            
+            const BRIGHTLOOP = 'd'
+            
+            let lightness
+            let lightness_txt
+            
+            if (BRIGHTLOOP == 'd') {
+                // day / night
+                const deviation = 0.1
+                const base = 0.2
+                let tmp_time = (h*3600 + m*60 + s) / (24*3600)
+                let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
+                lightness = base - deviation + tmp_light * deviation
+                lightness_txt = lightness + (1-base)/2
+            } else if (BRIGHTLOOP == 'm') {
+                // 1m loop
+                const deviation = 0.1
+                const base = 0.2
+                let tmp_time = s / 60
+                let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
+                lightness = base - deviation + tmp_light * deviation
+                lightness_txt = lightness + (1-base)/2
+            } else {
+                // static
+                lightness = 0.2
+                lightness_txt = 0.5
+            }
             
             document.getElementById("bg").style.backgroundColor = hslToHex(hue, 1, lightness)
+            
+            document.getElementById("container").style.color = hslToHex(hue, 1, lightness_txt)
             
         }
         
@@ -153,6 +184,10 @@
         }
         
         start()
+                
+        window.addEventListener('keypress', e => {
+            if (e.keyCode == 32) start()
+        })
     </script>
     
 </body>
