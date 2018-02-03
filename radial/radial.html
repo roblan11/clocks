@@ -1,0 +1,139 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>color clock concept</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="./radial.css">
+    <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
+</head>
+
+<body>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    
+    <div id="bg"></div>
+    
+    <div id="container">
+        <svg id="svg"></svg>
+        <div id="time"></div>
+    </div>
+    
+    <div id="gradient"></div>
+    
+    <script>
+        
+        function hslToHex(h, s, l) {
+            let r, g, b
+            if (s === 0) {
+                r = g = b = l // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1
+                    if (t > 1) t -= 1
+                    if (t < 1 / 6) return p + (q - p) * 6 * t
+                    if (t < 1 / 2) return q
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+                    return p
+                }
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+                const p = 2 * l - q
+                r = hue2rgb(p, q, h + 1 / 3)
+                g = hue2rgb(p, q, h)
+                b = hue2rgb(p, q, h - 1 / 3)
+            }
+            const toHex = x => {
+                const hex = Math.round(x * 255).toString(16);
+                return hex.length === 1 ? '0' + hex : hex
+            }
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+        }
+        
+        function scalarToRad(a) {
+            return a * Math.PI * 2
+        }
+        
+        const CENTER = {H: window.innerHeight/2, W: window.innerWidth/2 }
+        const BASE = Math.min(CENTER.H, CENTER.W)
+        const RADIUS = BASE*0.8
+        
+        function daysPerMon(d) {
+            M = d.getMonth()
+            Y = d.getYear()
+            if (M%2 == 0) return 31
+            else if (M == 1) {
+                let leap = (Y%4 == 0) && (Y%100 != 0 || Y%400 == 0)
+                if (leap) return 29
+                else return 28
+            } else return 30
+        }
+        
+        function format(d) {
+            return d.getSeconds()+":"+d.getMinutes()+":"+d.getHours()+", "+d.getDay()+" "+d.getDate()+" "+d.getMonth()
+        }
+        
+        function FIELDS(d) {
+            return [
+                {name: "s", outer: 1.00, inner: 0.91, val: d.getSeconds()/60},
+                {name: "min", outer: 0.90, inner: 0.81, val: d.getMinutes()/60},
+                {name: "h", outer: 0.80, inner: 0.71, val: d.getHours()/24},
+                {name: "W", outer: 0.65, inner: 0.56, val: d.getDay()==0 ? 1 : d.getDay()/7},
+                {name: "D", outer: 0.55, inner: 0.46, val: d.getDate()/daysPerMon(d)},
+                {name: "M", outer: 0.45, inner: 0.36, val: (d.getMonth()+1)/12}
+            ]
+        }
+        
+        let svg = d3.select("#svg")
+        let time = svg.append("g")
+        let vis = svg.append("g").attr("transform", `translate(${CENTER.W},${CENTER.H})`);
+        
+        function start() {
+            let d = new Date()
+            d.getSeconds
+            
+            FIELDS(d).forEach( f => {
+                let arc = d3.arc()
+                    .innerRadius(RADIUS * f.inner)
+                    .outerRadius(RADIUS * f.outer)
+                                
+                vis.append("path")
+                    .attr("id", "segment_"+f.name)
+                    .attr("d", arc({startAngle:0, endAngle:(scalarToRad(f.val))}))
+            })
+            
+            document.getElementById("time").innerHTML = format(d)
+            
+            update()
+        }
+        
+        function force() {
+            let d = new Date()
+            
+            FIELDS(d).forEach( f => {
+                let arc = d3.arc()
+                    .innerRadius(RADIUS * f.inner)
+                    .outerRadius(RADIUS * f.outer)
+                
+                vis.select("#segment_"+f.name)
+                    .attr("d", arc({startAngle:0, endAngle:(scalarToRad(f.val))}))
+            })
+            
+            document.getElementById("time").innerHTML = format(d)
+        }
+        
+        function update() {
+            let d = new Date()
+            
+            force()
+            
+            setTimeout(update, 1000)
+        }
+        
+        start()
+                
+        window.addEventListener('keypress', e => {
+            if (e.keyCode == 32) force()
+        })
+    </script>
+    
+</body>
+</html>
