@@ -37,32 +37,6 @@
     
     <script>
         
-        function hslToHex(h, s, l) {
-            let r, g, b
-            if (s === 0) {
-                r = g = b = l // achromatic
-            } else {
-                const hue2rgb = (p, q, t) => {
-                    if (t < 0) t += 1
-                    if (t > 1) t -= 1
-                    if (t < 1 / 6) return p + (q - p) * 6 * t
-                    if (t < 1 / 2) return q
-                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
-                    return p
-                }
-                const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-                const p = 2 * l - q
-                r = hue2rgb(p, q, h + 1 / 3)
-                g = hue2rgb(p, q, h)
-                b = hue2rgb(p, q, h - 1 / 3)
-            }
-            const toHex = x => {
-                const hex = Math.round(x * 255).toString(16);
-                return hex.length === 1 ? '0' + hex : hex
-            }
-            return `#${toHex(r)}${toHex(g)}${toHex(b)}`
-        }
-        
         function start() {
             let d = new Date()
             
@@ -116,16 +90,13 @@
             
             if (HUELOOP == 'd') {
                 // 24h loop
-                hue = h*3600 + m*60 + s
-                hue /= 24*3600
+                hue = (h*3600 + m*60 + s)/240
             } else if (HUELOOP == 'h') {
                 // 1h loop
-                hue = m*60 + s
-                hue /= 3600
+                hue = (m*60 + s)/10
             } else if (HUELOOP == 'm') {
                 // 1m loop
-                hue = s
-                hue /= 60
+                hue = s*6
             } else hue = 0
             
 // ------------------------------- BRIGHTNESS ------------------------------
@@ -137,29 +108,33 @@
             
             if (BRIGHTLOOP == 'd') {
                 // day / night
-                const deviation = 0.1
-                const base = 0.2
+                const deviation = 10
+                const base = 20
+                
                 let tmp_time = (h*3600 + m*60 + s) / (24*3600)
                 let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
+                
                 lightness = base - deviation + tmp_light * deviation
-                lightness_txt = lightness + (1-base)/2
+                lightness_txt = lightness + (100-base)/2
             } else if (BRIGHTLOOP == 'm') {
                 // 1m loop
-                const deviation = 0.1
-                const base = 0.2
+                const deviation = 10
+                const base = 20
+                
                 let tmp_time = s / 60
                 let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
+                
                 lightness = base - deviation + tmp_light * deviation
-                lightness_txt = lightness + (1-base)/2
+                lightness_txt = lightness + (100-base)/2
             } else {
                 // static
-                lightness = 0.2
-                lightness_txt = 0.5
+                lightness = 20
+                lightness_txt = 50
             }
             
-            document.getElementById("bg").style.backgroundColor = hslToHex(hue, 1, lightness)
+            document.getElementById("bg").style.backgroundColor = `hsl(${hue}, 100%, ${lightness}%)`
             
-            document.getElementById("container").style.color = hslToHex(hue, 1, lightness_txt)
+            document.getElementById("container").style.color = `hsl(${hue}, 100%, ${lightness_txt}%)`
             
         }
         
