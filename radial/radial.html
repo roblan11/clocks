@@ -15,7 +15,6 @@
     
     <div id="container">
         <svg id="svg"></svg>
-        <div id="time"></div>
     </div>
     
     <div id="gradient"></div>
@@ -30,9 +29,7 @@
         const BASE = Math.min(CENTER.H, CENTER.W)
         const RADIUS = BASE*0.8
         
-        function daysPerMon(d) {
-            M = d.getMonth()
-            Y = d.getYear()
+        function daysPerMon(M, Y) {
             if (M%2 == 0) return 31
             else if (M == 1) {
                 let leap = (Y%4 == 0) && (Y%100 != 0 || Y%400 == 0)
@@ -45,20 +42,45 @@
             return d.getSeconds()+":"+d.getMinutes()+":"+d.getHours()+", "+d.getDay()+" "+d.getDate()+" "+d.getMonth()
         }
         
+        const wdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+        
         function FIELDS(d) {
+            let ms = d.getMilliseconds()
+            let s = d.getSeconds()
+            let m = d.getMinutes()
+            let h = d.getHours()
+            let W = d.getDay() == 0 ? 7 : d.getDay()
+            let D = d.getDate()
+            let M = d.getMonth()
+            let Y = d.getFullYear()
             return [
-                {name: "s", outer: 1.00, inner: 0.91, val: d.getSeconds()/60 + d.getMilliseconds()/60000},
-                {name: "min", outer: 0.90, inner: 0.81, val: d.getMinutes()/60 + d.getSeconds()/3600},
-                {name: "h", outer: 0.80, inner: 0.71, val: d.getHours()/24 + d.getMinutes()/1560},
-                {name: "W", outer: 0.65, inner: 0.56, val: d.getDay()==0 ? 1 : d.getDay()/7 + d.getHours()/168},
-                {name: "D", outer: 0.55, inner: 0.46, val: d.getDate()/daysPerMon(d) + d.getHours()/(daysPerMon(d)*24)},
-                {name: "M", outer: 0.45, inner: 0.36, val: (d.getMonth()+1)/12 + d.getDate()/(12*daysPerMon(d))}
+                {name: "s", outer: 1.00, inner: 0.91, 
+                 val: s/60 + ms/60000,
+                 time: s},
+                {name: "min", outer: 0.90, inner: 0.81, 
+                 val: m/60 + s/3600,
+                 time: m},
+                {name: "h", outer: 0.80, inner: 0.71, 
+                 val: h/24 + m/1560,
+                 time: h},
+                {name: "W", outer: 0.65, inner: 0.56, 
+                 val: W/7 + h/168,
+                 time: wdays[W]},
+                {name: "D", outer: 0.55, inner: 0.46, 
+                 val: D/daysPerMon(M, Y) + h/(daysPerMon(M, Y)*24),
+                 time: D},
+                {name: "M", outer: 0.45, inner: 0.36, 
+                 val: (M+1)/12 + D/(12*daysPerMon(M, Y)),
+                 time: months[M]},
             ]
         }
         
         let svg = d3.select("#svg")
         let time = svg.append("g")
-        let vis = svg.append("g").attr("transform", `translate(${CENTER.W},${CENTER.H})`);
+            .attr("transform", `translate(${CENTER.W},${CENTER.H})`);
+        let vis = svg.append("g")
+            .attr("transform", `translate(${CENTER.W},${CENTER.H})`);
         
         function start() {
             let d = new Date()
@@ -72,9 +94,15 @@
                 vis.append("path")
                     .attr("id", "segment_"+f.name)
                     .attr("d", arc({startAngle:0, endAngle:(scalarToRad(f.val))}))
+                    .attr("fill", "white")
+                    .attr("opacity", 0.2)
+                
+                time.append("text")
+                    .attr("id", "time_"+f.name)
+                    .attr("y", -(f.inner + 0.02)*RADIUS )
+                    .attr("text-anchor", "middle")
+                    .text(f.time).attr("fill", "white")
             })
-            
-            document.getElementById("time").innerHTML = format(d)
             
             update()
         }
@@ -89,9 +117,11 @@
                 
                 vis.select("#segment_"+f.name)
                     .attr("d", arc({startAngle:0, endAngle:(scalarToRad(f.val))}))
+                
+                time.select("#time_"+f.name)
+                    .text(f.time)
             })
             
-            document.getElementById("time").innerHTML = format(d)
         }
         
         function update() {
@@ -99,7 +129,7 @@
             
             force()
             
-            setTimeout(update, 10)
+            setTimeout(update, 50)
         }
         
         start()
