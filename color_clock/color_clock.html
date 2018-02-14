@@ -10,6 +10,7 @@
 <body>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="../noSleep/NoSleep.js"></script>
     
     <div id="bg"></div>
     
@@ -36,8 +37,11 @@
     <div id="gradient"></div>
     
     <script>
+        let noSleep = new NoSleep();
         
         function start() {
+            noSleep.enable();
+            
             let d = new Date()
             
             utime(d, true)

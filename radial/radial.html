@@ -1,7 +1,7 @@
 <!DOCTYPE>
 <html>
 <head>
-    <title>color clock concept</title>
+    <title>radial clock concept</title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./radial.css">
     <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
@@ -10,6 +10,7 @@
 <body>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="../noSleep/NoSleep.js"></script>
     
     <div id="bg"></div>
     
@@ -82,7 +83,11 @@
         let vis = svg.append("g")
             .attr("transform", `translate(${CENTER.W},${CENTER.H})`);
         
+        let noSleep = new NoSleep();
+        
         function start() {
+            noSleep.enable();
+            
             let d = new Date()
             d.getSeconds
             
