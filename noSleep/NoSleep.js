@@ -111,6 +111,16 @@ var NoSleep = function () {
     }
   }
 
+  function isPromise(value) {
+    return value !== undefined && value !== null && typeof value.then === 'function';
+  }
+
+  function silencePromise(value) {
+    if (isPromise(value)) {
+      value.then(null, (e) => {});
+    }
+  }
+    
   _createClass(NoSleep, [{
     key: 'enable',
     value: function enable() {
@@ -121,7 +131,7 @@ var NoSleep = function () {
           window.setTimeout(window.stop, 0);
         }, 15000);
       } else {
-        this.noSleepVideo.play();
+        silencePromise(this.noSleepVideo.play());
       }
     }
   }, {
