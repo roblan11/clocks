@@ -41,7 +41,7 @@
         
         function start() {
             noSleep.enable();
-            
+
             let d = new Date()
             
             utime(d, true)
@@ -166,7 +166,32 @@
                 
         window.addEventListener('keypress', e => {
             if (e.keyCode == 32) start()
-        })
+        });
+        
+// hide cursor when idle
+// https://stackoverflow.com/questions/3354239/hiding-the-mouse-cursor-when-idle-using-javascript
+        (function() {
+            let mouseTimer = null
+            let cursorVisible = true
+
+            function disappearCursor() {
+                mouseTimer = null
+                document.body.style.cursor = "none"
+                cursorVisible = false
+            }
+
+            document.onmousemove = () => {
+                if (mouseTimer) {
+                    window.clearTimeout(mouseTimer)
+                }
+                if (!cursorVisible) {
+                    document.body.style.cursor = "default"
+                    cursorVisible = true
+                }
+                mouseTimer = window.setTimeout(disappearCursor, 1000)
+            };
+        })();
+        
     </script>
     
 </body>
