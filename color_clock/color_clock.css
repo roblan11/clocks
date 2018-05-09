@@ -4,6 +4,19 @@ body {
     padding: 0;
 }
 
+#nosleep {
+    width: 110%;
+    height: 80%;
+    position: absolute;
+    top: 10%;
+    left: -5%;
+    background-color: none;
+    border: 6px;
+    border-style: double;
+    opacity: 0.5;
+    visibility: hidden;
+}
+
 #bg {
     position: absolute;
     top: 0;

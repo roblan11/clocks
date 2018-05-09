@@ -13,6 +13,7 @@
     <script src="../noSleep/NoSleep.js"></script>
     
     <div id="bg"></div>
+    <div id="nosleep"></div>
     
     <div id="container">
         <div id="clock">
@@ -38,10 +39,44 @@
     
     <script>
         let noSleep = new NoSleep();
+        let nosleep_enabled = false;
+        
+        function toggleNosleep() {
+            if (nosleep_enabled) {
+                noSleep.disable()
+                document.getElementById("nosleep").style.visibility = 'hidden'
+            } else {
+                noSleep.enable()
+                document.getElementById("nosleep").style.visibility = 'visible'
+            }
+            nosleep_enabled = !nosleep_enabled
+            start();
+        }
+        
+        let bright_mode = "dark";
+        let sat = {
+            dark: {
+                base: 10,
+                txt_base: 60,
+                deviation: 10
+            },
+            light: {
+                base: 100,
+                txt_base: 40,
+                deviation: 0
+            }
+        }
+        
+        function toggleBrightmode() {
+            if (bright_mode == "dark") {
+                bright_mode = "light"
+            } else {
+                bright_mode = "dark"
+            }
+            start()
+        }
         
         function start() {
-            noSleep.enable();
-
             let d = new Date()
             
             utime(d, true)
@@ -103,6 +138,8 @@
                 hue = s*6
             } else hue = 0
             
+            
+            
 // ------------------------------- BRIGHTNESS ------------------------------
             
             const BRIGHTLOOP = 'd'
@@ -112,24 +149,18 @@
             
             if (BRIGHTLOOP == 'd') {
                 // day / night
-                const deviation = 10
-                const base = 20
-                
                 let tmp_time = (h*3600 + m*60 + s) / (24*3600)
                 let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
                 
-                lightness = base - deviation + tmp_light * deviation
-                lightness_txt = lightness + (100-base)/2
+                lightness = sat[bright_mode].base + tmp_light * sat[bright_mode].deviation
+                lightness_txt = sat[bright_mode].txt_base + tmp_light * sat[bright_mode].deviation
             } else if (BRIGHTLOOP == 'm') {
                 // 1m loop
-                const deviation = 10
-                const base = 20
-                
                 let tmp_time = s / 60
                 let tmp_light = 1 - Math.cos(scalarToRad(tmp_time))
                 
-                lightness = base - deviation + tmp_light * deviation
-                lightness_txt = lightness + (100-base)/2
+                lightness = sat[bright_mode].base + tmp_light * sat[bright_mode].deviation
+                lightness_txt = sat[bright_mode].txt_base + tmp_light * sat[bright_mode].deviation
             } else {
                 // static
                 lightness = 20
@@ -137,8 +168,10 @@
             }
             
             document.getElementById("bg").style.backgroundColor = `hsl(${hue}, 100%, ${lightness}%)`
-            
             document.getElementById("container").style.color = `hsl(${hue}, 100%, ${lightness_txt}%)`
+            if (nosleep_enabled) {
+                document.getElementById("nosleep").style.borderColor = `hsl(${hue}, 100%, ${lightness_txt}%)`
+            }
             
         }
         
@@ -165,7 +198,20 @@
         start()
                 
         window.addEventListener('keypress', e => {
-            if (e.keyCode == 32) start()
+            switch (e.keyCode) {
+                case 32:
+                    // SPACE: reset time
+                    start()
+                    break
+                case 98:
+                    // B: toggle bright/dark mode
+                    toggleBrightmode()
+                    break
+                case 110:
+                    // N: toggle nosleep
+                    toggleNosleep()
+                    break
+            }
         });
         
 // hide cursor when idle
