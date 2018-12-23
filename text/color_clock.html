@@ -1,0 +1,224 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>color clock concept</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="./color_clock.css">
+    <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
+</head>
+
+<body>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="../noSleep/NoSleep.js"></script>
+    
+    <div id="bg"></div>
+    
+    <div id="container">
+    <div id="nosleep"></div>
+    
+    </div>
+    
+    <script>
+        let noSleep = new NoSleep();
+        let nosleep_enabled = false;
+        
+        function toggleNosleep() {
+            if (nosleep_enabled) {
+                noSleep.disable()
+                document.getElementById("nosleep").style.visibility = 'hidden'
+            } else {
+                noSleep.enable()
+                document.getElementById("nosleep").style.visibility = 'visible'
+            }
+            nosleep_enabled = !nosleep_enabled
+        }
+        
+        let bright_mode = "bright";
+        let sat = {
+            dark: {
+                base: 10,
+                txt_base: 60,
+                deviation: 10
+            },
+            light: {
+                base: 100,
+                txt_base: 40,
+                deviation: 0
+            }
+        }
+        
+        function toggleBrightmode() {
+            if (bright_mode == "dark") {
+                bright_mode = "light"
+                d3.select("#container").attr("style", "background-color: rgb(200, 200, 200); color: rgb(50, 50, 50);")
+            } else {
+                bright_mode = "dark"
+                d3.select("#container").attr("style", "background-color: rgb(50, 50, 50); color: rgb(200, 200, 200);")
+            }
+        }
+        
+        const letters = 
+        [    
+            ['I','T','I','S','T','W','E','N','T','Y'], 
+            ['H','A','L','F','I','V','E','T','E','N'],
+            ['Q','U','A','R','T','E','R',' ','T','O'],
+            ['P','A','S','T',' ','S','E','V','E','N'],
+            ['T','E','N','F','O','U','R','S','I','X'],
+            ['T','W','O','N','E','T','H','R','E','E'],
+            [' ','E','L','E','V','E','N','I','N','E'],
+            ['E','I','G','H','T','W','E','L','V','E'],
+            ['F','I','V','E',' ','A','M',' ','P','M']
+        ]
+        const size = 10;
+        
+        const various = {
+            itis: [0, 1, 2, 3],
+            to: [28, 29],
+            past: [30, 31, 32, 33],
+            am: [85, 86],
+            pm: [88, 89]
+        }
+        
+        const minutes = {
+            5: [13, 14, 15, 16],
+            10: [17, 18, 19],
+            15: [20, 21, 22, 23, 24, 25, 26],
+            20: [4, 5, 6, 7, 8, 9],
+            25: [4, 5, 6, 7, 8, 9, 13, 14, 15, 16],
+            30: [10, 11, 12, 13]
+        }
+        
+        const hours = {
+            1: [52, 53, 54],
+            2: [50, 51, 52],
+            3: [55, 56, 57, 58, 59],
+            4: [43, 44, 45, 46],
+            5: [80, 81, 82, 83],
+            6: [47, 48, 49],
+            7: [35, 36, 37, 38, 39],
+            8: [70, 71, 72, 73, 74],
+            9: [66, 67, 68, 69],
+            10: [40, 41, 42],
+            11: [61, 62, 63, 64, 65, 66],
+            12: [74, 75, 76, 77, 78, 79],
+        }
+        
+        let COUNT = 0;
+        
+        function start() {
+            
+            toggleBrightmode();
+            
+            let list = d3.select("#container").append("table")
+            
+            for (let row in letters) {
+                let r = list.append("tr");
+                for (let col in letters[row]) {
+                    let e = r.append("th")
+                    e.text(letters[row][col])
+                    e.attr("id", "letter" + COUNT)
+                    COUNT += 1
+                }
+            }
+            
+            let d = new Date()
+            
+            utime(d)
+            
+            update()
+        }
+        
+        function update() {
+            let d = new Date()
+            
+            utime(d)
+            
+            setTimeout(update, 60000)
+        }
+        
+        function disable_all() {
+            for (let i=0; i<COUNT; i++) {
+                d3.select("#letter"+i).attr("class", "off")
+            }
+        }
+        
+        function enable(list) {
+            for (let i in list) {
+                d3.select("#letter"+list[i]).attr("class", "on")
+            }
+        }
+        
+        function utime(d) {
+            disable_all();
+            
+            enable(various.itis)
+            
+            let h = d.getHours();
+            if (h > 12) {
+                enable(various.pm)
+                h -= 12
+            } else {
+                enable(various.am)
+            }
+            enable(hours[h])
+            
+            let m = d.getMinutes()
+            let m_floored = Math.round(m/5) * 5
+            if (m_floored > 30) {
+                enable(various.to)
+                m = 60 - m;
+                m_floored = Math.round(m/5) * 5
+            } else {
+                enable(various.past)
+            }
+            enable(minutes[m_floored])
+        }
+        
+        start()
+                
+        window.addEventListener('keypress', e => {
+            switch (e.keyCode) {
+                case 32:
+                    // SPACE: reset time
+                    update()
+                    break
+                case 98:
+                    // B: toggle bright/dark mode
+                    toggleBrightmode()
+                    break
+                case 110:
+                    // N: toggle nosleep
+                    toggleNosleep()
+                    break
+            }
+        });
+        
+// hide cursor when idle
+// https://stackoverflow.com/questions/3354239/hiding-the-mouse-cursor-when-idle-using-javascript
+        (function() {
+            let mouseTimer = null
+            let cursorVisible = true
+
+            function disappearCursor() {
+                mouseTimer = null
+                document.body.style.cursor = "none"
+                cursorVisible = false
+            }
+
+            document.onmousemove = () => {
+                if (mouseTimer) {
+                    window.clearTimeout(mouseTimer)
+                }
+                if (!cursorVisible) {
+                    document.body.style.cursor = "default"
+                    cursorVisible = true
+                }
+                mouseTimer = window.setTimeout(disappearCursor, 1000)
+            };
+        })();
+        
+    </script>
+    
+</body>
+</html>
