@@ -154,7 +154,23 @@
             
             enable(various.itis)
             
-            let h = d.getHours();
+            let h = d.getHours()
+            let m = d.getMinutes()
+            let m_rounded = Math.round(m/5) * 5
+            if (m_rounded == 0) {
+                // oclock ?
+            } else if (m_rounded == 60) {
+                h += 1
+            } else if (m_rounded > 30) {
+                enable(various.to)
+                m = 60 - m;
+                h += 1
+                m_rounded = Math.round(m/5) * 5
+            } else {
+                enable(various.past)
+            }
+            enable(minutes[m_rounded])
+            
             if (h > 12) {
                 enable(various.pm)
                 h -= 12
@@ -162,17 +178,6 @@
                 enable(various.am)
             }
             enable(hours[h])
-            
-            let m = d.getMinutes()
-            let m_floored = Math.round(m/5) * 5
-            if (m_floored > 30) {
-                enable(various.to)
-                m = 60 - m;
-                m_floored = Math.round(m/5) * 5
-            } else {
-                enable(various.past)
-            }
-            enable(minutes[m_floored])
         }
         
         start()
