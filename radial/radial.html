@@ -39,10 +39,6 @@
             } else return 30
         }
         
-        function format(d) {
-            return d.getSeconds()+":"+d.getMinutes()+":"+d.getHours()+", "+d.getDay()+" "+d.getDate()+" "+d.getMonth()
-        }
-        
         const wdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
         const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
         
@@ -51,7 +47,7 @@
             let s = d.getSeconds()
             let m = d.getMinutes()
             let h = d.getHours()
-            let W = d.getDay() == 0 ? 7 : d.getDay()-1
+            let W = d.getDay() == 0 ? 6 : d.getDay()-1
             let D = d.getDate()
             let M = d.getMonth()
             let Y = d.getFullYear()
