@@ -4,6 +4,21 @@ body {
     padding: 0;
 }
 
+#nosleep {
+    position: absolute;
+    width: 1em;
+    height: 1em;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background-color: none;
+    border-radius: 50%;
+    background-color: gray;
+    visibility: hidden;
+    overflow: hidden;
+}
+
 #bg {
     position: absolute;
     top: 0;

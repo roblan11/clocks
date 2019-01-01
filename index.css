@@ -1,6 +1,6 @@
 body {
     font-family: 'Space Mono', monospace;
-    background-color: lightgray;
+    background-color: white;
 }
 
 a, a:active, a:hover {
@@ -60,10 +60,10 @@ a {
     background-color: hsl(60, 100%, 20%);
 }
 
-#texsg {
+#texen {
     background-color: hsl(120, 100%, 20%);
 }
 
-#texen {
+#texchde {
     background-color: hsl(180, 100%, 20%);
 }

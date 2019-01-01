@@ -46,50 +46,51 @@
         
         const letters = 
         [    
-            ['I','T',' ','I','S',' ','H','A','L','F'],
-            ['T','E','N','Q','U','A','R','T','E','R'],
-            ['T','W','E','N','T','Y','F','I','V','E'],
-            ['P','A','S','T','O',' ','N','I','N','E'],
-            ['F','O','U','R','E','L','E','V','E','N'],
-            ['E','I','G','H','T','T','H','R','E','E'],
-            ['S','I','X','T','E','N','O','O','N','E'],
-            ['M','I','D','N','I','G','H','T','W','O'],
-            ['F','I','V','E','E','L','E','V','E','N'],
-            ['S','E','V','E','N',' ','A','M','P','M']
+            ['E','S','I','S','C','H',' ','Z','Ä','H'],
+            ['F','Ü','F','V','I','E','R','T','E','L'],
+            ['Z','W','Ä','N','Z','G',' ',' ','A','B'],
+            ['V','O','R',' ',' ','H','A','L','B','I'],
+            ['S','I','B','N','I','Z','Ä','H','N','I'],
+            ['Z','W','Ö','L','F','I','F','Ü','F','I'],
+            ['D','R','Ü','E','I','S','Z','W','E','I'],
+            ['N','Ü','N','I','S','Ä','C','H','S','I'],
+            ['V','I','E','R','I','A','C','H','T','I'],
+            ['E','L','F','I',' ',' ','A','M','P','M']
         ]
         
         const various = {
-            itis: [ 0,  4],
-            to:   [33, 34],
-            past: [30, 33],
-            am:   [96, 97],
-            pm:   [98, 99]
+            esisch: [ 0,  5],
+            vor:    [30, 32],
+            ab:     [28, 29],
+            am:     [96, 97],
+            pm:     [98, 99]
         }
         
         const minutes = {
-            0:  [ 5,  5],
-            5:  [26, 29],
-            10: [10, 12],
+            0:  [ 6,  6],
+            5:  [10, 12],
+            10: [ 7,  9],
             15: [13, 19],
             20: [20, 25],
-            25: [20, 29],
-            30: [ 6,  9]
+            25: [10, 12, 30, 32, 35, 39],
+            30: [35, 39],
+            35: [10, 12, 28, 29, 35, 39]
         }
         
         const hours = {
-            0:  [70, 77],
-            1:  [67, 69],
-            2:  [77, 79],
-            3:  [55, 59],
-            4:  [40, 43],
-            5:  [80, 83],
-            6:  [60, 62],
-            7:  [90, 94],
-            8:  [50, 54],
-            9:  [36, 39],
-            10: [63, 65],
-            11: [44, 49],
-            12: [65, 68]
+            0:  [50, 55],
+            1:  [63, 65],
+            2:  [66, 69],
+            3:  [60, 62],
+            4:  [80, 84],
+            5:  [56, 59],
+            6:  [74, 79],
+            7:  [40, 44],
+            8:  [85, 89],
+            9:  [70, 73],
+            10: [45, 49],
+            11: [90, 93],
+            12: [50, 55]
         }
         
         let COUNT = 0;
@@ -104,6 +105,7 @@
                 let r = list.append("tr");
                 for (let col in letters[row]) {
                     let e = r.append("th")
+                    
                     e.text(letters[row][col])
                     e.attr("id", "letter" + COUNT)
                     COUNT += 1
@@ -142,29 +144,31 @@
         function utime(d) {
             disable_all();
             
-            enable(various.itis)
+            enable(various.esisch)
             
             let h = d.getHours()
             let m = d.getMinutes()
             
             let m_rounded = Math.round(m/5) * 5
             if (m_rounded == 0) {
-                // oclock ?
+                // nothing
             } else if (m_rounded == 60) {
                 m_rounded = 0
                 h = (h+1) % 24
-            } else if (m_rounded > 30) {
-                enable(various.to)
+            } else if (m_rounded >= 25 && m_rounded <= 35) {
+                h = (h+1) % 24
+            } else if (m_rounded > 35) {
+                enable(various.vor)
                 h = (h+1) % 24
                 m_rounded = Math.round((60-m)/5) * 5
             } else {
-                enable(various.past)
+                enable(various.ab)
             }
             enable(minutes[m_rounded])
             
-            if (h == 0 && m > 30 || h == 12 && m <= 30) {
+            if (h == 0 && m >= 25 || h == 12 && m < 25) {
                 enable(various.pm)
-            } else if (h == 0 && m <= 30 || h == 12 && m > 30) {
+            } else if (h == 0 && m < 25 || h == 12 && m >= 25) {
                 enable(various.am)
             } else if (h > 12) {
                 enable(various.pm)

@@ -14,6 +14,8 @@
     
     <div id="bg"></div>
     
+    <div id="nosleep"></div>
+    
     <div id="container">
         <svg id="svg"></svg>
     </div>
@@ -21,6 +23,36 @@
     <div id="gradient"></div>
     
     <script>
+        
+        let noSleep = new NoSleep();
+        let nosleep_enabled = false;
+        
+        function toggleNosleep() {
+            if (nosleep_enabled) {
+                noSleep.disable()
+                document.getElementById("nosleep").style.visibility = 'hidden'
+            } else {
+                noSleep.enable()
+                document.getElementById("nosleep").style.visibility = 'visible'
+            }
+            nosleep_enabled = !nosleep_enabled
+        }
+        
+        let bright_mode = "dark";
+        
+        function toggleBrightmode() {
+            if (bright_mode == "dark") {
+                bright_mode = "light"
+                d3.select("#bg").attr("style", "background-color: #dedede")
+                d3.selectAll("text").attr("fill", "black")
+                d3.selectAll("path").attr("fill", "black")
+            } else {
+                bright_mode = "dark"
+                d3.select("#bg").attr("style", "background-color: #212121")
+                d3.selectAll("text").attr("fill", "white")
+                d3.selectAll("path").attr("fill", "white")
+            }
+        }
         
         function scalarToRad(a) {
             return a * Math.PI * 2
@@ -79,11 +111,7 @@
         let vis = svg.append("g")
             .attr("transform", `translate(${CENTER.W},${CENTER.H})`);
         
-        let noSleep = new NoSleep();
-        
         function start() {
-            noSleep.enable();
-            
             let d = new Date()
             d.getSeconds
             
@@ -136,7 +164,20 @@
         start()
                 
         window.addEventListener('keypress', e => {
-            if (e.keyCode == 32) force()
+            switch (e.keyCode) {
+                case 32:
+                    // SPACE: reset time
+                    force()
+                    break
+                case 98:
+                    // B: toggle bright/dark mode
+                    toggleBrightmode()
+                    break
+                case 110:
+                    // N: toggle nosleep
+                    toggleNosleep()
+                    break
+            }
         });
         
 // hide cursor when idle
