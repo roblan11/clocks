@@ -4,20 +4,6 @@ body {
     padding: 0;
 }
 
-#nosleep {
-    width: 90%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 5%;
-    background-color: none;
-    border: 6px;
-    border-style: none double;
-    opacity: 0.5;
-    visibility: hidden;
-    overflow: hidden;
-}
-
 #container {
     position: absolute;
     width: 100%;

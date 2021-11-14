@@ -1,2 +1,2 @@
 # clocks
-playing around with creating clocks with html and js
+Simple fullscreen clocks. [Feel free to check them out](https://roblan11.github.io/clocks/)
