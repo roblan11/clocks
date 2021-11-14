@@ -79,7 +79,8 @@ settings.radii.forEach(r => {
 		.attr('text-anchor', 'middle')
 		.text(r)
 		.attr('fill', settings.colors[settings.mode].text)
-		times.push(time)
+		.attr('style', 'font-size: xx-large;')
+	times.push(time)
 })
 
 function daysPerMon(M, Y) {
